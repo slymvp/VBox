@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VBOX Logo — YouTube 风格方案</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0a0a0f;
+  color: #f0f0f5;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: 1px; }
+.sub { color: #6b7280; font-size: 14px; margin-bottom: 40px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1200px;
+  width: 100%;
+}
+.card {
+  background: #111118;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #1e1e28;
+  transition: border-color 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+.card:hover {
+  border-color: #ef4444;
+  transform: translateY(-4px);
+}
+.card.selected {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px #ef4444;
+}
+.card img {
+  width: 100%;
+  display: block;
+}
+.card .label {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  color: #9ca3af;
+  background: #0d0d14;
+}
+.card .tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: 8px;
+  font-weight: 400;
+}
+.tag-simple { background: #991b1b; color: #fca5a5; }
+.tag-bold { background: #1e3a5f; color: #93c5fd; }
+.tag-color { background: #065f46; color: #6ee7b7; }
+
+.footer { margin-top: 40px; color: #6b7280; font-size: 13px; text-align: center; }
+.footer strong { color: #ef4444; }
+</style>
+</head>
+<body>
+<h1>VBOX · YouTube 风格</h1>
+<p class="sub">极简 · 粗体无衬线 · O + 播放三角为核心 · 纯平设计</p>
+
+<div class="grid">
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <img src="Logo_design_for__VBOX__in_YouT_2026-06-13T10-37-53.png" alt="极简白+红O" loading="eager">
+    <div class="label">方案 A<span class="tag tag-simple">极简白</span></div>
+  </div>
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <img src="_VBOX__logo__YouTube_inspired__2026-06-13T10-37-53.png" alt="红白配色" loading="eager">
+    <div class="label">方案 B<span class="tag tag-bold">红白冲击</span></div>
+  </div>
+  <div class="card" onclick="this.classList.toggle('selected')">
+    <img src="Minimal_YouTube_style_logo_for_2026-06-13T10-37-43.png" alt="彩色极简" loading="eager">
+    <div class="label">方案 C<span class="tag tag-color">彩标</span></div>
+  </div>
+</div>
+
+<p class="footer">参考 YouTube Logo 设计语言：<strong>极简 · 扁平 · 粗体无衬线 · O 环+三角为视觉锚点</strong></p>
+</body>
+</html>

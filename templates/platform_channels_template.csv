@@ -1,0 +1,3 @@
+﻿category_id,channel_key,channel_name,url,output_table,channel_id,sort_order,enabled
+1,tv,电视剧,https://example.com/tv,series,,0,1
+2,movie,电影,https://example.com/movie,series,,1,1

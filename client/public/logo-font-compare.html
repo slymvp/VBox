@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VBOX Logo 方案对比</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&amp;family=Bebas+Neue&amp;family=Oswald:wght@700&amp;family=Anton&amp;display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0f14; color: #fff; font-family: system-ui, sans-serif; padding: 40px; min-height: 100vh; }
+  h1 { text-align: center; font-size: 32px; margin-bottom: 40px; color: #a0a0b0; letter-spacing: 2px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 30px; max-width: 1100px; margin: 0 auto; }
+  .card { background: #1a1a24; border-radius: 16px; padding: 36px 30px; border: 1px solid #2a2a38; transition: 0.2s; cursor: pointer; }
+  .card:hover { border-color: #6366f1; transform: translateY(-2px); }
+  .card.selected { border-color: #22c55e; border-width: 2px; box-shadow: 0 0 20px rgba(34,197,94,0.2); }
+  .card-label { font-size: 13px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .card-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .card-desc { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+  .logo-wrap { display: flex; align-items: center; justify-content: center; padding: 10px 0; }
+  .logo-wrap svg { max-width: 100%; height: auto; }
+
+  /* Logo text styles */
+  .lt-montserrat { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 64px; }
+  .lt-bebas { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 74px; letter-spacing: 2px; }
+  .lt-oswald { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 68px; }
+  .lt-anton { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 68px; letter-spacing: 1px; }
+  .lt-system { font-family: 'Arial Black', 'Impact', 'Helvetica Neue', sans-serif; font-weight: 900; font-size: 64px; letter-spacing: -1px; }
+
+  .grad-v { background: linear-gradient(180deg, #818cf8, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .grad-b { background: linear-gradient(180deg, #38bdf8, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .grad-x { background: linear-gradient(180deg, #fb923c, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .rec { margin-top: 40px; padding: 16px 24px; background: #22c55e20; border: 1px solid #22c55e40; border-radius: 10px; text-align: center; font-size: 15px; color: #86efac; display: none; }
+  .rec.visible { display: block; }
+  .rec span { font-weight: 700; color: #4ade80; }
+
+  .note { text-align: center; margin-top: 32px; font-size: 12px; color: #4b5563; }
+</style>
+</head>
+<body>
+<h1>VBOX · Logo 字体方案对比</h1>
+<div class="grid">
+
+  <!-- Card 1: Montserrat 900 -->
+  <div class="card" id="card1" onclick="pick('Montserrat','card1')">
+    <div class="card-label">方案 A</div>
+    <div class="card-title">Montserrat Black</div>
+    <div class="card-desc">几何无衬线 · 现代时尚 · Google 热门字体</div>
+    <div class="logo-wrap">
+      <svg viewBox="0 0 480 120" style="max-width:440px">
+        <defs>
+          <linearGradient id="gv1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
+          <linearGradient id="gb1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+          <linearGradient id="go1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+          <linearGradient id="gx1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
+        </defs>
+        <text x="30" y="88" font-family="Montserrat" font-weight="900" font-size="66" fill="url(#gv1)">V</text>
+        <text x="132" y="88" font-family="Montserrat" font-weight="900" font-size="66" fill="url(#gb1)">B</text>
+        <circle cx="258" cy="55" r="33" fill="none" stroke="url(#go1)" stroke-width="9"/>
+        <polygon points="249,39 249,71 279,55" fill="#10b981"/>
+        <text x="320" y="88" font-family="Montserrat" font-weight="900" font-size="66" fill="url(#gx1)">X</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 2: Bebas Neue -->
+  <div class="card" id="card2" onclick="pick('Bebas','card2')">
+    <div class="card-label">方案 B</div>
+    <div class="card-title">Bebas Neue</div>
+    <div class="card-desc">窄体大写 · 杂志封面感 · 极简高级</div>
+    <div class="logo-wrap">
+      <svg viewBox="0 0 480 120" style="max-width:440px">
+        <defs>
+          <linearGradient id="gv2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
+          <linearGradient id="gb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+          <linearGradient id="go2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+          <linearGradient id="gx2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
+        </defs>
+        <text x="40" y="84" font-family="Bebas Neue" font-weight="400" font-size="74" letter-spacing="2" fill="url(#gv2)">V</text>
+        <text x="138" y="84" font-family="Bebas Neue" font-weight="400" font-size="74" letter-spacing="2" fill="url(#gb2)">B</text>
+        <circle cx="256" cy="52" r="32" fill="none" stroke="url(#go2)" stroke-width="9"/>
+        <polygon points="247,36 247,68 276,52" fill="#10b981"/>
+        <text x="310" y="84" font-family="Bebas Neue" font-weight="400" font-size="74" letter-spacing="2" fill="url(#gx2)">X</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 3: Oswald Bold -->
+  <div class="card" id="card3" onclick="pick('Oswald','card3')">
+    <div class="card-label">方案 C</div>
+    <div class="card-title">Oswald Bold</div>
+    <div class="card-desc">窄体粗壮 · 运动品牌风 · 力量感</div>
+    <div class="logo-wrap">
+      <svg viewBox="0 0 480 120" style="max-width:440px">
+        <defs>
+          <linearGradient id="gv3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
+          <linearGradient id="gb3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+          <linearGradient id="go3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+          <linearGradient id="gx3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
+        </defs>
+        <text x="38" y="86" font-family="Oswald" font-weight="700" font-size="70" fill="url(#gv3)">V</text>
+        <text x="140" y="86" font-family="Oswald" font-weight="700" font-size="70" fill="url(#gb3)">B</text>
+        <circle cx="262" cy="51" r="33" fill="none" stroke="url(#go3)" stroke-width="9"/>
+        <polygon points="253,35 253,67 282,51" fill="#10b981"/>
+        <text x="320" y="86" font-family="Oswald" font-weight="700" font-size="70" fill="url(#gx3)">X</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 4: Anton -->
+  <div class="card" id="card4" onclick="pick('Anton','card4')">
+    <div class="card-label">方案 D</div>
+    <div class="card-title">Anton</div>
+    <div class="card-desc">粗壮方正 · 冲击力强 · 海报标题风</div>
+    <div class="logo-wrap">
+      <svg viewBox="0 0 480 120" style="max-width:440px">
+        <defs>
+          <linearGradient id="gv4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>
+          <linearGradient id="gb4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient>
+          <linearGradient id="go4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+          <linearGradient id="gx4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#f97316"/></linearGradient>
+        </defs>
+        <text x="34" y="86" font-family="Anton" font-weight="400" font-size="70" letter-spacing="1" fill="url(#gv4)">V</text>
+        <text x="138" y="86" font-family="Anton" font-weight="400" font-size="70" letter-spacing="1" fill="url(#gb4)">B</text>
+        <circle cx="262" cy="53" r="32" fill="none" stroke="url(#go4)" stroke-width="9"/>
+        <polygon points="253,37 253,69 282,53" fill="#10b981"/>
+        <text x="322" y="86" font-family="Anton" font-weight="400" font-size="70" letter-spacing="1" fill="url(#gx4)">X</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- Recommendation banner -->
+<div class="rec" id="rec">
+  你选择了 <span id="rec-name">—</span> · 点击方案卡片切换对比
+</div>
+
+<div class="note">点击卡片选中方案 · 确定后我将生成最终版 SVG Logo 文件</div>
+
+<script>
+function pick(name, cardId) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(cardId).classList.add('selected');
+  document.getElementById('rec').classList.add('visible');
+  document.getElementById('rec-name').textContent = '方案 ' + cardId.replace('card','');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "appId": "com.example.vbox",
+  "appName": "VBox TV",
+  "bundledWebRuntime": false,
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 1000,
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "androidSpinnerStyle": "large",
+      "iosSpinnerStyle": "small",
+      "webBackgroundColor": "#ffffffff"
+    },
+    "Keyboard": {
+      "resize": "none",
+      "style": "dark"
+    }
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

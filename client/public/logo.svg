@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 140" width="500" height="140">
+  <defs>
+    <!-- V 渐变色：蓝紫 -->
+    <linearGradient id="gradV" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <!-- B 渐变色：蓝青 -->
+    <linearGradient id="gradB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <!-- O 渐变：青绿 -->
+    <linearGradient id="gradO" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <!-- X 渐变：橙粉 -->
+    <linearGradient id="gradX" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <!-- 播放按钮渐变 -->
+    <linearGradient id="gradPlay" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <!-- 整体阴影 -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#6366f1" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- V -->
+  <g transform="translate(20, 15)">
+    <path d="M0,0 L25,105 L40,105 L65,0" fill="none" stroke="url(#gradV)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- B -->
+  <g transform="translate(90, 15)">
+    <path d="M5,0 L5,105 M5,0 L50,0 Q72,0 72,28 Q72,52 48,53 Q70,54 70,80 Q70,105 48,105 L5,105"
+          fill="none" stroke="url(#gradB)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- O + 播放三角 -->
+  <g transform="translate(180, 15)">
+    <!-- O 外圈 -->
+    <circle cx="52.5" cy="52.5" r="47.5" fill="none" stroke="url(#gradO)" stroke-width="18"/>
+    <!-- 播放三角形 -->
+    <polygon points="42,32 42,73 72,52.5" fill="url(#gradPlay)" filter="url(#shadow)"/>
+  </g>
+
+  <!-- X -->
+  <g transform="translate(295, 15)">
+    <path d="M10,0 L58,105 M58,0 L10,105" fill="none" stroke="url(#gradX)" stroke-width="20" stroke-linecap="round"/>
+  </g>
+</svg>

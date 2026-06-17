@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VBOX Logo AI 生成方案</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #fff; font-family: system-ui, sans-serif; padding: 40px; min-height: 100vh; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 12px; color: #e0e0e0; }
+  .sub { text-align: center; font-size: 14px; color: #6b7280; margin-bottom: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
+  .card { background: #14141c; border-radius: 16px; overflow: hidden; border: 1px solid #2a2a38; transition: 0.2s; }
+  .card:hover { border-color: #6366f1; }
+  .card-header { padding: 16px 20px; border-bottom: 1px solid #1e1e28; }
+  .card-num { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+  .card-title { font-size: 18px; font-weight: 700; margin-top: 4px; }
+  .card-desc { font-size: 13px; color: #6b7280; margin-top: 2px; }
+  .card-img { padding: 20px; display: flex; justify-content: center; }
+  .card-img img { max-width: 100%; max-height: 340px; border-radius: 8px; }
+  .actions { text-align: center; margin-top: 40px; }
+  .btn { display: inline-block; padding: 12px 32px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; margin: 0 8px; }
+  .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid #4b5563; color: #d1d5db; }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .files { margin-top: 32px; padding: 20px; background: #1a1a24; border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .files h3 { font-size: 14px; color: #6b7280; margin-bottom: 12px; }
+  .file-item { display: flex; align-items: center; padding: 8px 12px; background: #0f0f14; border-radius: 6px; margin-bottom: 6px; font-size: 13px; font-family: monospace; color: #a0a0b0; }
+</style>
+</head>
+<body>
+<h1>VBOX Logo · AI 生成方案</h1>
+<p class="sub">点击"生成更多"可产出更多变体，选中满意的告诉我编号即可</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-num">方案 1</div>
+      <div class="card-title">暗色背景 · 渐变字母</div>
+      <div class="card-desc">高对比 · 品牌感强烈 · 暗黑科技风</div>
+    </div>
+    <div class="card-img">
+      <img src="Professional_minimalist_logo_d_2026-06-13T10-16-44.png" alt="VBOX Logo 方案1" onerror="this.parentElement.innerHTML='<p style=color:#6b7280>图片加载中...</p>'">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-num">方案 2</div>
+      <div class="card-title">白色背景 · 超粗字体</div>
+      <div class="card-desc">干净利落 · APP 图标级 · 纯净现代</div>
+    </div>
+    <div class="card-img">
+      <img src="Premium_brand_logo__VBOX__for__2026-06-13T10-17-20.png" alt="VBOX Logo 方案2" onerror="this.parentElement.innerHTML='<p style=color:#6b7280>图片加载中...</p>'">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-num">方案 3</div>
+      <div class="card-title">暗色背景 · 霓虹发光</div>
+      <div class="card-desc">潮流炫酷 · 娱乐平台感 · 发光描边</div>
+    </div>
+    <div class="card-img">
+      <img src="Creative_bold_logo_design_for__2026-06-13T10-17-46.png" alt="VBOX Logo 方案3" onerror="this.parentElement.innerHTML='<p style=color:#6b7280>图片加载中...</p>'">
+    </div>
+  </div>
+</div>
+
+<div class="files">
+  <h3>源文件位置</h3>
+  <div class="file-item">client/public/Professional_minimalist_logo_d_2026-06-13T10-16-44.png</div>
+  <div class="file-item">client/public/Premium_brand_logo__VBOX__for__2026-06-13T10-17-20.png</div>
+  <div class="file-item">client/public/Creative_bold_logo_design_for__2026-06-13T10-17-46.png</div>
+</div>
+
+</body>
+</html>

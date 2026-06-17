@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VBOX Logo 预览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0d1117 100%);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 40px; padding: 40px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .card {
+    background: #16161e; border-radius: 20px; padding: 40px 60px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .card h2 {
+    color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;
+    letter-spacing: 3px; font-weight: 500;
+  }
+  .card img { height: 60px; }
+  .card.large img { height: 100px; }
+  .card.small img { height: 36px; }
+  .cards-row {
+    display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+  }
+  .light-bg {
+    background: linear-gradient(135deg, #f7f6f3 0%, #ffffff 100%);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .light-bg h2 { color: rgba(0,0,0,0.4); }
+</style>
+</head>
+<body>
+  <h1 style="color:rgba(255,255,255,0.7);font-size:20px;font-weight:500;letter-spacing:2px;margin-bottom:-10px;">
+    VBOX · 品牌 Logo
+  </h1>
+
+  <div class="cards-row">
+    <div class="card large">
+      <h2>主 Logo（纯白）</h2>
+      <img src="logo.svg" alt="VBOX Logo">
+    </div>
+    <div class="card light-bg large">
+      <h2>浅色背景</h2>
+      <img src="logo.svg" alt="VBOX Logo">
+    </div>
+  </div>
+
+  <div class="cards-row">
+    <div class="card">
+      <h2>APP 图标尺寸</h2>
+      <img src="logo-v2.svg" alt="VBOX Logo v2">
+    </div>
+    <div class="card light-bg">
+      <h2>浅色 · v2</h2>
+      <img src="logo-v2.svg" alt="VBOX Logo v2">
+    </div>
+    <div class="card small">
+      <h2>小尺寸</h2>
+      <img src="logo-v2.svg" alt="VBOX Logo v2">
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+category_id,channel_key,channel_name,url,output_table,channel_id,sort_order,enabled
+1,tv,电视剧,https://www.iqiyi.com/tv,,,1,1
+2,movie,电影,https://www.iqiyi.com/movie,,,2,1
+3,variety,综艺,https://www.iqiyi.com/variety,,,3,1
+4,cartoon,动漫,https://www.iqiyi.com/comic,,,4,1
+5,child,少儿,https://www.iqiyi.com/cartoon,,,5,1

@@ -1,0 +1,103 @@
+/* TV 端焦点样式 - 全局样式（性能优化版） */
+
+/* 焦点元素基础样式 */
+.tv-focus {
+  outline: 3px solid var(--gold) !important;
+  outline-offset: 2px;
+  transform: none !important;
+  box-shadow: none !important;
+  z-index: 100;
+  position: relative;
+}
+
+/* 卡片焦点样式 */
+.tv-focus.series-card {
+  border-color: var(--gold) !important;
+  z-index: 100;
+}
+
+/* 按钮焦点样式 */
+.tv-focus button,
+.tv-focus .type-btn,
+.tv-focus .home-btn,
+.tv-focus .filter-btn,
+.tv-focus .sort-tab {
+  outline: 3px solid var(--gold) !important;
+  outline-offset: 2px;
+}
+
+/* 剧集卡片网格焦点容器 */
+.series-grid-wrapper {
+  position: relative;
+}
+
+/* 移除焦点指示器动画（性能优化） */
+@keyframes tvFocusPulse {
+  0%, 100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: none;
+  }
+}
+
+.tv-focus {
+  animation: none !important;
+}
+
+/* 禁用动画时的焦点样式（性能考虑） */
+.tv-no-animation .tv-focus {
+  animation: none;
+}
+
+/* 分类区域焦点容器 */
+.category-section {
+  position: relative;
+}
+
+/* 筛选面板焦点 */
+.filter-panel .tv-focus {
+  background: color-mix(in srgb, var(--gold) 15%, transparent) !important;
+}
+
+/* 详情页焦点按钮 */
+.detail-hero .tv-focus {
+  transform: none !important;
+}
+
+/* 剧集网格焦点 */
+.episode-grid .tv-focus {
+  outline-color: var(--gold) !important;
+}
+
+/* 滚动容器焦点保持 */
+.tv-focus-scroll-container {
+  scroll-behavior: smooth;
+}
+
+/* 移动端隐藏焦点样式 */
+@media (hover: hover) and (pointer: fine) {
+  .tv-focus {
+    outline: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+}
+
+/* TV 模式下的通用交互 */
+@media (hover: none) and (pointer: coarse) {
+  /* 触摸设备上隐藏焦点边框 */
+  .tv-focus {
+    outline: none !important;
+    transform: none !important;
+  }
+}
+
+/* TV 端性能优化：移除所有过渡动画 */
+@media (min-width: 1920px) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.example.vbox" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>天天追剧</name>
+    <description>
+        天天追剧 - 多平台视频聚合应用
+    </description>
+    <author email="dev@vbox.org" href="https://v-box.org">
+        天天追剧
+    </author>
+    <content src="index.html" />
+
+    <!-- Android TV支持 -->
+    <platform name="android">
+        <preference name="android-targetSdkVersion" value="32" />
+        <preference name="android-minSdkVersion" value="21" />
+        <preference name="fullscreen" value="true" />
+        <preference name="orientation" value="landscape" />
+
+        <!-- TV遥控器支持 -->
+        <edit-config file="app/src/main/AndroidManifest.xml" target="/manifest/application" mode="merge">
+            <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+            <uses-feature android:name="android.software.leanback" android:required="true" />
+        </edit-config>
+    </platform>
+
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+</widget>

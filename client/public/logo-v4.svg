@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 160">
+  <defs>
+    <linearGradient id="gV" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="gO" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="gX" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <linearGradient id="gPlay" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="gLine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="33%" stop-color="#06b6d4"/>
+      <stop offset="66%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+  </defs>
+
+  <!-- V — geometric bold sans-serif -->
+  <!-- Left stroke -->
+  <path d="M30 18 L66 122 L69 122 L69 126 L24 126 L24 122 L27 122 L63 18 Z" fill="url(#gV)"/>
+  <!-- Right stroke -->
+  <path d="M108 18 L72 122 L69 122 L69 126 L114 126 L114 122 L111 122 L75 18 Z" fill="url(#gV)"/>
+  <!-- Bottom sharp connection -->
+  <polygon points="66,122 72,122 69,134" fill="url(#gV)"/>
+
+  <!-- B — geometric bold sans-serif -->
+  <!-- Vertical stem -->
+  <rect x="126" y="18" width="16" height="108" rx="1" fill="url(#gB)"/>
+  <!-- Top bowl outer -->
+  <path d="M142 18 H180 V58 A12 12 0 0 1 168 70 H142 Z" fill="url(#gB)"/>
+  <!-- Top bowl inner counter -->
+  <path d="M142 28 H170 V58 A5 5 0 0 1 165 63 H142 Z" fill="#fff" opacity="0.92"/>
+  <!-- Bottom bowl outer -->
+  <path d="M142 74 H174 A20 20 0 0 1 174 114 H142 Z" fill="url(#gB)"/>
+  <!-- Bottom bowl inner counter -->
+  <path d="M142 84 H165 A10 10 0 0 1 165 104 H142 Z" fill="#fff" opacity="0.92"/>
+
+  <!-- O — geometric bold circle with play triangle -->
+  <!-- Outer ring -->
+  <circle cx="254" cy="72" r="54" fill="none" stroke="url(#gO)" stroke-width="16"/>
+  <!-- Play triangle inside O -->
+  <polygon points="244,50 244,94 280,72" fill="url(#gPlay)"/>
+
+  <!-- X — geometric bold sans-serif -->
+  <!-- Top-left to bottom-right -->
+  <path d="M320 18 L385 122 L389 126 L315 126 L315 122 L318 122 L253 18 Z" fill="url(#gX)"/>
+  <!-- Bottom-left to top-right (mirror) -->
+  <path d="M386 18 L321 122 L317 126 L391 126 L391 122 L388 122 L452 18 Z" fill="url(#gX)"/>
+
+  <!-- Decorative underline -->
+  <rect x="30" y="152" width="420" height="2.5" rx="1.25" fill="url(#gLine)"/>
+</svg>
