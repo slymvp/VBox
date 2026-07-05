@@ -25,7 +25,7 @@ CHANNEL_ID_MAP = {
 PLATFORM_UA = (
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
     'AppleWebKit/537.36 (KHTML, like Gecko) '
-    'Chrome/120.0.0.0 Safari/537.36'
+    'Chrome/131.0.0.0 Safari/537.36'
 )
 
 HEADERS = {
@@ -60,7 +60,15 @@ class MgtvSpider(BaseSpider):
             self.channel_id = 2
             self.category_key = 'tv'
         self.session = requests.Session()
-        self.session.headers.update(HEADERS)
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers
+        self.session.headers.update(build_headers(
+            referer='https://www.mgtv.com/',
+            origin='https://www.mgtv.com',
+            accept='application/json, text/plain, */*',
+            ua=self.get_user_agent(),
+            extra={'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-site'},
+        ))
         self.max_workers = 5
         self.skip_existing = True
 

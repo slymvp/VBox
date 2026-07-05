@@ -30,7 +30,7 @@ class YoukuBaseSpider(BaseSpider):
     }
 
     HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
         'Referer': 'https://www.youku.com/',
     }
 
@@ -67,6 +67,13 @@ class YoukuBaseSpider(BaseSpider):
         # sort: 'hot' = 热门列表, 'new' = 最新列表, ''/None = 默认（不刷标记）
         self._list_type = str(channel_config.get('sort', '') or '')
         self._page_fetched = False  # 频道页SSR只请求一次
+
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers
+        self.HEADERS = build_headers(
+            referer='https://www.youku.com/',
+            ua=self.get_user_agent(),
+        )
 
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('youku', 'trailer', self._TRAILER_FALLBACK)

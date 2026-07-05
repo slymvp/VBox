@@ -40,7 +40,7 @@ DETAIL_API = 'https://api.bilibili.com/pgc/view/web/season'
 PAGE_SIZE = 30
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     'Referer': 'https://www.bilibili.com/',
     'Origin': 'https://www.bilibili.com',
 }
@@ -65,7 +65,13 @@ class BilibiliSpider(BaseSpider):
         self._list_type = sort_val
 
         self.session = requests.Session()
-        self.session.headers.update(HEADERS)
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers
+        self.session.headers.update(build_headers(
+            referer='https://www.bilibili.com/',
+            origin='https://www.bilibili.com',
+            ua=self.get_user_agent(),
+        ))
         self.timeout = channel_config.get('timeout', 20)
 
     # === 请求工具 ===

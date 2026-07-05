@@ -13712,3 +13712,29 @@ FROM task_schedule ORDER BY task_schedule.created_at DESC]
 2026-06-15 14:01:49 [ERROR] vbox.iqiyi.extractor:145 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
 2026-06-15 14:01:53 [ERROR] vbox.iqiyi.extractor:145 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
 2026-06-15 14:01:53 [ERROR] vbox.iqiyi.extractor:145 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
+2026-06-24 23:18:21 [ERROR] vbox.api:702 - [Playwright] 浏览器渲染失败: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "https://json.fongmi.cc/web?url=https://v.qq.com/x/cover/mzc002001dgrsqh/y41024tgdpd.html", waiting until "domcontentloaded"
+
+2026-06-24 23:57:19 [ERROR] vbox.api:844 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-24 23:57:21 [ERROR] vbox.api:844 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-25 00:04:12 [ERROR] vbox.api:844 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-25 00:04:13 [ERROR] vbox.api:844 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-25 00:10:43 [ERROR] vbox.api:939 - m3u8 代理失败: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1081)
+2026-06-25 00:10:44 [ERROR] vbox.api:939 - m3u8 代理失败: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1081)
+2026-06-25 00:20:22 [ERROR] vbox.api:980 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-25 00:20:23 [ERROR] vbox.api:980 - m3u8 代理失败: [Errno 11001] getaddrinfo failed
+2026-06-25 00:44:06 [ERROR] vbox.api:1060 - [m3u8 proxy] 所有方式均获取失败，内容: This deployment is temporarily paused
+
+hnd1::ktf4f-1782319446004-234a53d23e12
+2026-06-25 00:44:09 [ERROR] vbox.api:1060 - [m3u8 proxy] 所有方式均获取失败，内容: This deployment is temporarily paused
+
+hnd1::rn2rc-1782319448766-283bc17237bf
+2026-06-25 00:48:42 [ERROR] vbox.api:1120 - [m3u8 proxy] 所有方式均获取失败，内容: 
+2026-06-25 00:48:45 [ERROR] vbox.api:1120 - [m3u8 proxy] 所有方式均获取失败，内容: 
+2026-06-30 21:31:04 [ERROR] vbox.api:1344 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-06-30 21:31:06 [ERROR] vbox.api:1344 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-06-30 23:27:02 [ERROR] vbox.api:1374 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-07-04 14:12:56 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-07-04 14:13:12 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-07-04 14:13:13 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.

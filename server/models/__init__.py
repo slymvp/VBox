@@ -795,6 +795,8 @@ class AdminParseSource(Base):
     type = Column(String(20), nullable=False, default='json', comment='解析源类型：json, video, search')
     url = Column(String(500), nullable=False, comment='解析接口地址前缀')
     sort_order = Column(Integer, default=0, comment='排序')
+    success_count = Column(Integer, default=0, comment='成功次数（持久化到DB）')
+    fail_count = Column(Integer, default=0, comment='失败次数（持久化到DB）')
     enabled = Column(Boolean, default=True, comment='是否启用')
     created_at = Column(DateTime, default=utc_plus_8, comment='创建时间')
     updated_at = Column(DateTime, default=utc_plus_8, onupdate=utc_plus_8, comment='更新时间')
@@ -807,6 +809,8 @@ class AdminParseSource(Base):
     )
 
     def to_dict(self):
+        total = (self.success_count or 0) + (self.fail_count or 0)
+        rate = round((self.success_count or 0) / total * 100, 1) if total > 0 else None
         return {
             'id': self.id,
             'platform_id': self.platform_id,
@@ -815,6 +819,9 @@ class AdminParseSource(Base):
             'type': self.type,
             'url': self.url,
             'sort_order': self.sort_order,
+            'success_count': self.success_count or 0,
+            'fail_count': self.fail_count or 0,
+            'success_rate': rate,
             'enabled': self.enabled,
             'created_at': format_datetime(self.created_at),
             'updated_at': format_datetime(self.updated_at),
@@ -1048,6 +1055,27 @@ def init_db():
 
     # 创建所有新表
     Base.metadata.create_all(bind=engine)
+
+    # 迁移：为已有表添加新列（SQLite ALTER TABLE 只支持 ADD COLUMN）
+    _migrations = {
+        'admin_parse_source': [
+            ('success_count', 'INTEGER DEFAULT 0'),
+            ('fail_count', 'INTEGER DEFAULT 0'),
+        ],
+    }
+    try:
+        with engine.connect() as conn:
+            for table_name, columns in _migrations.items():
+                for col_name, col_def in columns:
+                    try:
+                        conn.execute(text(f'ALTER TABLE {table_name} ADD COLUMN {col_name} {col_def}'))
+                        print(f"迁移: 表 {table_name} 添加列 {col_name}")
+                    except Exception:
+                        pass  # 列已存在
+            conn.commit()
+    except Exception as e:
+        print(f"迁移失败: {e}")
+
     print(f"数据库初始化完成，频道表: {[get_video_table_name(k) for k in CATEGORY_KEYS]}")
 
 

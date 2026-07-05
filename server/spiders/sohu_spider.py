@@ -27,11 +27,13 @@ class SohuSpider(BaseSpider):
             channel_url += '/'
         self.channel_url = channel_url
         
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-            'Referer': 'https://tv.sohu.com/',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        }
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers
+        self.headers = build_headers(
+            referer='https://tv.sohu.com/',
+            accept='text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            ua=self.get_user_agent(),
+        )
         self.timeout = 20
         
         logger.info(f"初始化搜狐爬虫: category={self.category_key}, url={self.channel_url}")

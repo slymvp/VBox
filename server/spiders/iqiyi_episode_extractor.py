@@ -56,11 +56,13 @@ class IQiyiEpisodeExtractor:
 
     def __init__(self):
         self.timeout = 8
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-            'Referer': 'https://www.iqiyi.com/',
-            'Origin': 'https://www.iqiyi.com',
-        }
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers, get_random_ua
+        self.headers = build_headers(
+            referer='https://www.iqiyi.com/',
+            origin='https://www.iqiyi.com',
+            ua=get_random_ua(),
+        )
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('iqiyi', 'trailer', _TRAILER_KEYWORDS_DEFAULT)
         self._bts_keywords = load_keywords('iqiyi', 'bts', _BTS_KEYWORDS_DEFAULT)
@@ -276,11 +278,16 @@ class IQiyiEpisodeExtractor:
 
         with sync_playwright() as p:
             try:
-                browser = p.chromium.launch(headless=True)
-                context = browser.new_context(
-                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-                    locale='zh-CN',
-                )
+                browser = p.chromium.launch(headless=True, args=[
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-blink-features=AutomationControlled',
+                ])
+                from core.anti_crawl import build_playwright_context_options, get_stealth_scripts
+                ctx_opts = build_playwright_context_options()
+                context = browser.new_context(**ctx_opts)
+                context.add_init_script(get_stealth_scripts())
                 page = context.new_page()
 
                 logger.info(f"Playwright访问页面: {url}")
@@ -330,11 +337,16 @@ class IQiyiEpisodeExtractor:
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                context = browser.new_context(
-                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-                    locale='zh-CN',
-                )
+                browser = p.chromium.launch(headless=True, args=[
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-blink-features=AutomationControlled',
+                ])
+                from core.anti_crawl import build_playwright_context_options, get_stealth_scripts
+                ctx_opts = build_playwright_context_options()
+                context = browser.new_context(**ctx_opts)
+                context.add_init_script(get_stealth_scripts())
                 page = context.new_page()
 
                 logger.info(f"Playwright提取封面图: {url}")

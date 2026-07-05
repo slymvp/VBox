@@ -1188,6 +1188,41 @@ class DatabaseManager:
             session.delete(ps)
             return True
 
+    def load_parse_source_stats(self) -> dict:
+        """从 DB 加载所有解析源的统计数据，返回 {key: {success, fail}}"""
+        with self.session_scope() as session:
+            sources = session.query(ParseSource).all()
+            stats = {}
+            for ps in sources:
+                stats[ps.key] = {
+                    'success': ps.success_count or 0,
+                    'fail': ps.fail_count or 0,
+                    'last_used': 0,
+                }
+            return stats
+
+    def persist_parse_source_stats(self, stats: dict):
+        """将内存统计增量写入 DB"""
+        with self.session_scope() as session:
+            for key, s in stats.items():
+                ps = session.query(ParseSource).filter(ParseSource.key == key).first()
+                if ps:
+                    ps.success_count = s.get('success', 0)
+                    ps.fail_count = s.get('fail', 0)
+            session.flush()
+
+    def reset_parse_source_stats(self, ps_id: int = None):
+        """重置解析源统计"""
+        with self.session_scope() as session:
+            if ps_id:
+                ps = session.query(ParseSource).filter(ParseSource.id == ps_id).first()
+                if ps:
+                    ps.success_count = 0
+                    ps.fail_count = 0
+            else:
+                session.query(ParseSource).update({ParseSource.success_count: 0, ParseSource.fail_count: 0})
+            return True
+
 
 # 全局默认实例
 db = DatabaseManager()
@@ -1246,6 +1281,9 @@ _instance_methods = {
     'create_parse_source': db.create_parse_source,
     'update_parse_source': db.update_parse_source,
     'delete_parse_source': db.delete_parse_source,
+    'load_parse_source_stats': db.load_parse_source_stats,
+    'persist_parse_source_stats': db.persist_parse_source_stats,
+    'reset_parse_source_stats': db.reset_parse_source_stats,
     'batch_save_series_and_episodes': db.batch_save_series_and_episodes,
     'get_filter_options': db.get_filter_options,
 }

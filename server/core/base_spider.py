@@ -3,8 +3,10 @@ from abc import ABC, abstractmethod
 import time
 import json
 import os
+import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from core.config import Config
+from core.anti_crawl import build_headers, random_delay
 
 
 class BaseSpider(ABC):
@@ -13,17 +15,19 @@ class BaseSpider(ABC):
         self.channel_config = channel_config
         self.max_workers = 5  # 并发线程数
         self.skip_existing = True  # 增量爬取：跳过已存在的剧集
-        
+
         # 从数据库加载平台配置
         self.config = Config()
         self.platform_config = self.config.get_platform(platform_name)
-    
+
     def get_user_agent(self):
-        """从配置获取 User-Agent，返回默认值如果没有配置"""
-        return self.platform_config.get('user_agent') or (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
-        )
+        """从配置获取 User-Agent，返回随机 UA 如果没有配置"""
+        configured_ua = self.platform_config.get('user_agent')
+        if configured_ua:
+            return configured_ua
+        # 使用 UA 池随机选择
+        from core.anti_crawl import get_random_ua
+        return get_random_ua()
     
     def get_keywords(self, keyword_type):
         """获取指定类型的关键词列表（通过 spiders.keywords.load_keywords 统一加载）"""
@@ -70,7 +74,7 @@ class BaseSpider(ABC):
             return set()
 
     def _fetch_list_page_safe(self, page):
-        """线程安全的列表页获取，带限流"""
+        """线程安全的列表页获取，带随机限流"""
         try:
             data = self.fetch_list_page(page)
             return page, data
@@ -78,7 +82,7 @@ class BaseSpider(ABC):
             print(f'第 {page} 页获取异常: {e}')
             return page, None
         finally:
-            time.sleep(0.3)
+            random_delay(0.5, 2.0)  # 随机抖动替代固定 0.3s
 
     def crawl(self, max_items=10):
         print(f'[{self.platform_name}] 开始爬取...\n')
@@ -191,12 +195,12 @@ class BaseSpider(ABC):
         return 1
 
     def _fetch_detail_safe(self, item):
-        """线程安全的详情获取，带限流"""
+        """线程安全的详情获取，带随机限流"""
         try:
             self.fetch_detail(item)
         except Exception as e:
             print(f'详情获取异常: {self._get_item_title(item)}, 错误: {e}')
             raise
         finally:
-            time.sleep(0.3)  # 限流：每个线程请求间隔0.3秒
+            random_delay(0.5, 2.0)  # 随机抖动替代固定 0.3s
 

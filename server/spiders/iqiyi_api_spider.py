@@ -22,10 +22,12 @@ class IQiyiAPISpider(BaseSpider):
 
     def __init__(self, channel_config):
         super().__init__('爱奇艺', channel_config)
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Referer': 'https://www.iqiyi.com/',
-        }
+        # 反爬：动态构建完整请求头
+        from core.anti_crawl import build_headers
+        self.headers = build_headers(
+            referer='https://www.iqiyi.com/',
+            ua=self.get_user_agent(),
+        )
 
         # 优先使用 main.py 注入的 category_key（最可靠），
         # 其次使用数据库 channel_key 字段，最后默认 tv

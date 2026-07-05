@@ -29,7 +29,7 @@ class TencentBaseSpider(BaseSpider):
 
     HEADERS = {
         'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
         'Origin': 'https://v.qq.com',
         'Referer': 'https://v.qq.com/',
     }
@@ -76,13 +76,16 @@ class TencentBaseSpider(BaseSpider):
         else:
             self._list_type = ''
             self._filter_params = ''
-        # 动态获取 User-Agent
-        self.HEADERS = {
-            'Content-Type': 'application/json',
-            'User-Agent': self.get_user_agent(),
-            'Origin': 'https://v.qq.com',
-            'Referer': 'https://v.qq.com/',
-        }
+        # 动态构建完整请求头（反爬：每次初始化随机 UA + 完整浏览器头）
+        from core.anti_crawl import build_headers
+        self.HEADERS = build_headers(
+            referer='https://v.qq.com/',
+            origin='https://v.qq.com',
+            content_type='application/json',
+            accept='application/json, text/plain, */*',
+            ua=self.get_user_agent(),
+            extra={'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-site'},
+        )
 
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('tencent', 'trailer', self._TRAILER_FALLBACK)

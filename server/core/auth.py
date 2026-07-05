@@ -105,8 +105,12 @@ def verify_access_token(token: str) -> Optional[int]:
     payload = decode_token(token)
     if not payload or payload.get("type") != "access":
         return None
-    user_id: int = payload.get("sub")
-    return user_id
+    user_id = payload.get("sub")
+    # sub 必须是字符串（JWT 标准），转成 int 返回
+    try:
+        return int(user_id)
+    except (TypeError, ValueError):
+        return None
 
 
 def verify_refresh_token(token: str) -> Optional[int]:
@@ -122,8 +126,11 @@ def verify_refresh_token(token: str) -> Optional[int]:
     payload = decode_token(token)
     if not payload or payload.get("type") != "refresh":
         return None
-    user_id: int = payload.get("sub")
-    return user_id
+    user_id = payload.get("sub")
+    try:
+        return int(user_id)
+    except (TypeError, ValueError):
+        return None
 
 
 def refresh_tokens(refresh_token: str) -> Optional[Dict[str, str]]:
