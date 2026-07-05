@@ -4889,7 +4889,12 @@ def get_vip_status(req: Request = None, current_user = Depends(get_current_user)
 
             if user.vip_expire_at:
                 now = utc_plus_8()
-                if user.vip_expire_at > now:
+                # 统一时区：如果 vip_expire_at 是 naive，补上 UTC+8
+                expire_at = user.vip_expire_at
+                if expire_at.tzinfo is None:
+                    from datetime import timezone, timedelta
+                    expire_at = expire_at.replace(tzinfo=timezone(timedelta(hours=8)))
+                if expire_at > now:
                     remaining_days = (user.vip_expire_at - now).days
                 else:
                     is_expired = True

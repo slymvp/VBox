@@ -79,9 +79,15 @@ class MgtvSpider(BaseSpider):
         def _do():
             resp = self.session.get(url, params=params, timeout=timeout)
             resp.raise_for_status()
+            # 检查响应是否为 JSON（芒果TV 反爬可能返回 HTML）
+            content_type = resp.headers.get('Content-Type', '')
+            if 'json' not in content_type and 'javascript' not in content_type:
+                text_preview = resp.text[:200]
+                logger.warning(f'芒果TV返回非JSON响应: Content-Type={content_type}, 内容={text_preview}')
+                raise ValueError(f'API返回非JSON: {content_type}')
             return resp.json()
 
-        return RetryHelper.with_retry(_do, max_retries=3, base_delay=1, max_delay=8)
+        return RetryHelper.with_retry(_do, max_retries=3, base_delay=2, max_delay=10)
 
     @staticmethod
     def _extract_total_from_update_info(update_info: str) -> int:
