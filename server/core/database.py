@@ -5,7 +5,7 @@
 """
 from contextlib import contextmanager
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any, Callable
 
 from sqlalchemy import Integer as sqlalchemy_Integer, case
@@ -24,7 +24,7 @@ from models import (
 
 
 def utc_plus_8():
-    now = datetime.utcnow() + timedelta(hours=8)
+    now = datetime.now(timezone.utc) + timedelta(hours=8)
     return now.replace(microsecond=0)
 
 

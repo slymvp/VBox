@@ -35,6 +35,9 @@ class Config:
         
         channels = self.db.list_platform_channels()
         for ch in channels:
+            # 跳过无效的平台配置
+            if not ch['platform']:
+                continue
             platform_key = ch['platform']['key']
             category_key = ch['category']['key']
             if platform_key not in self._channels_cache:

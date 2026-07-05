@@ -15,7 +15,7 @@ import os
 import httpx
 import hashlib
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # 加载环境变量（有 fallback 机制）
 try:
@@ -28,7 +28,7 @@ except ImportError:
 
 def utc_plus_8() -> datetime:
     """获取 UTC+8 时区的当前时间（只到秒级）"""
-    now = datetime.utcnow() + timedelta(hours=8)
+    now = datetime.now(timezone.utc) + timedelta(hours=8)
     return now.replace(microsecond=0)
 
 

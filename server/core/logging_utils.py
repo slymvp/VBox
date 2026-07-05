@@ -3,7 +3,7 @@
 提供记录用户操作日志的功能
 """
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from models import UserLog, get_session
 from core.logger import setup_logger
@@ -48,7 +48,7 @@ def log_user_action(
                 ip_address=ip_address,
                 user_agent=user_agent,
                 status=status,
-                created_at=datetime.utcnow()  # 这里直接使用UTC时间，避免时区问题
+                created_at=datetime.now(timezone.utc)  # 这里直接使用UTC时间，避免时区问题
             )
             session.add(log_record)
             session.flush()

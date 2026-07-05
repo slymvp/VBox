@@ -11,7 +11,7 @@
 - task_*      任务/爬取相关
 - admin_*     管理端相关
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from contextlib import contextmanager
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, Text, DateTime, ForeignKey, Index
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
@@ -24,7 +24,7 @@ Base = declarative_base()
 
 def utc_plus_8() -> datetime:
     """获取 UTC+8 时区的当前时间（只到秒级）"""
-    now = datetime.utcnow() + timedelta(hours=8)
+    now = datetime.now(timezone.utc) + timedelta(hours=8)
     return now.replace(microsecond=0)
 
 
@@ -1016,6 +1016,8 @@ engine = create_engine(
     connect_args={
         'timeout': 30,
         'check_same_thread': False,
+        # 外键约束通过 PRAGMA foreign_keys = ON 启用（见 init_db）
+        # Python 3.14 的 sqlite3.Connection 不再接受 foreign_keys 参数
     },
     pool_pre_ping=True,
 )
@@ -1030,6 +1032,7 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("PRAGMA journal_mode=WAL"))
             conn.execute(text("PRAGMA busy_timeout=30000"))
+            conn.execute(text("PRAGMA foreign_keys = ON"))  # 启用外键约束
             conn.commit()
     except Exception as e:
         print(f"设置WAL模式失败: {e}")

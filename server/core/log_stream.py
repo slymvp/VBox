@@ -62,9 +62,9 @@ class MemoryLogHandler(logging.Handler):
             conn = sqlite3.connect(db_path, timeout=10.0)
             cursor = conn.cursor()
             
-            from datetime import datetime, timedelta
+            from datetime import datetime, timedelta, timezone
             def utc_plus_8():
-                now = datetime.utcnow() + timedelta(hours=8)
+                now = datetime.now(timezone.utc) + timedelta(hours=8)
                 return now.replace(microsecond=0).isoformat()
             
             created_at = utc_plus_8()
@@ -115,7 +115,8 @@ def cleanup_old_logs(days: int = 10):
     """清理指定天数之前的旧日志"""
     try:
         from models import TaskCrawlLog, get_session
-        cutoff_date = datetime.utcnow() + timedelta(hours=8) - timedelta(days=days)
+        from datetime import timezone
+        cutoff_date = datetime.now(timezone.utc) + timedelta(hours=8) - timedelta(days=days)
         with get_session() as session:
             deleted = session.query(TaskCrawlLog).filter(
                 TaskCrawlLog.created_at < cutoff_date

@@ -15,8 +15,8 @@ from enum import Enum
 
 # 导入UTC+8时间函数
 def utc_plus_8():
-    from datetime import datetime, timedelta
-    return datetime.utcnow() + timedelta(hours=8)
+    from datetime import datetime, timedelta, timezone
+    return datetime.now(timezone.utc) + timedelta(hours=8)
 
 logger = logging.getLogger(__name__)
 

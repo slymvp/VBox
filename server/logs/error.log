@@ -13738,3 +13738,22 @@ hnd1::rn2rc-1782319448766-283bc17237bf
 2026-07-04 14:12:56 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
 2026-07-04 14:13:12 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
 2026-07-04 14:13:13 [ERROR] vbox.api:1411 - [Playwright] 获取页面内容失败: Page.content: Unable to retrieve content because the page is navigating and changing the content.
+2026-07-05 13:26:46 [ERROR] vbox.api:4937 - 获取VIP状态失败: can't compare offset-naive and offset-aware datetimes
+2026-07-05 13:26:46 [ERROR] vbox.api:4937 - 获取VIP状态失败: can't compare offset-naive and offset-aware datetimes
+2026-07-05 13:26:46 [ERROR] vbox.api:4937 - 获取VIP状态失败: can't compare offset-naive and offset-aware datetimes
+2026-07-05 13:26:51 [ERROR] vbox.api:4937 - 获取VIP状态失败: can't compare offset-naive and offset-aware datetimes
+2026-07-05 13:26:51 [ERROR] vbox.api:4937 - 获取VIP状态失败: can't compare offset-naive and offset-aware datetimes
+2026-07-05 13:59:32 [ERROR] vbox.retry:75 - _do 达到最大重试次数(3)
+2026-07-05 13:59:32 [ERROR] vbox.mgtv:171 - 列表页请求失败 (page=1): Expecting value: line 1 column 1 (char 0)
+2026-07-05 13:59:32 [ERROR] vbox.retry:75 - _do 达到最大重试次数(3)
+2026-07-05 13:59:32 [ERROR] vbox.mgtv:171 - 列表页请求失败 (page=1): Expecting value: line 1 column 1 (char 0)
+2026-07-05 13:59:38 [ERROR] vbox.retry:75 - _do 达到最大重试次数(3)
+2026-07-05 13:59:38 [ERROR] vbox.mgtv:171 - 列表页请求失败 (page=1): Extra data: line 1 column 2 (char 1)
+2026-07-05 13:59:38 [ERROR] vbox.retry:75 - _do 达到最大重试次数(3)
+2026-07-05 13:59:38 [ERROR] vbox.mgtv:171 - 列表页请求失败 (page=1): Expecting value: line 1 column 1 (char 0)
+2026-07-05 13:59:44 [ERROR] vbox.retry:75 - _do 达到最大重试次数(3)
+2026-07-05 13:59:44 [ERROR] vbox.mgtv:171 - 列表页请求失败 (page=1): Extra data: line 1 column 2 (char 1)
+2026-07-05 13:59:56 [ERROR] vbox.iqiyi.extractor:147 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
+2026-07-05 13:59:57 [ERROR] vbox.iqiyi.extractor:147 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
+2026-07-05 14:00:11 [ERROR] vbox.iqiyi.extractor:147 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
+2026-07-05 14:00:15 [ERROR] vbox.iqiyi.extractor:147 - 专辑页提取分集失败: HTTPSConnectionPool(host='www.iqiyi.com', port=443): Read timed out. (read timeout=8)
