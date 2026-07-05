@@ -64,7 +64,7 @@ class BilibiliSpider(BaseSpider):
         self._order = ORDER_MAP.get(sort_val, 3)
         self._list_type = sort_val
 
-        self.session = requests.Session()
+        self.session = self.create_session()
         # 反爬：动态构建完整请求头
         from core.anti_crawl import build_headers
         self.session.headers.update(build_headers(
@@ -401,12 +401,18 @@ class BilibiliSpider(BaseSpider):
             new_ep_desc = new_ep.get('desc', '') or ''  # e.g. "已完结, 全10集"
             pub_is_finish = (detail.get('publish', {}) or {}).get('is_finish', 0) or 0
 
-            item['is_finished'] = self._judge_finished(
-                is_finish_list=item.get('_is_finish_list', pub_is_finish),
-                index_show=item.get('_index_show', '') or '',
-                new_ep_desc=new_ep_desc,
-                total=total,
+            from core.finished_judge import judge
+            # API is_finish 字段映射：1=完结, 0=未知
+            api_finished = item.get('_is_finish_list', pub_is_finish)
+            api_finished = 1 if api_finished == 1 else 0
+            # 合并文本信号
+            judge_text = f"{item.get('_index_show', '') or ''} {new_ep_desc}"
+            item['is_finished'] = judge(
+                api_finished=api_finished,
+                text=judge_text,
+                total_episodes=total,
                 main_count=main_count,
+                trailer_count=len(trailer_eps),
                 category_key=self.category_key,
             )
 
@@ -423,44 +429,6 @@ class BilibiliSpider(BaseSpider):
 
         except Exception as e:
             logger.error(f"详情获取失败: {item.get('title', '未知')}, 错误: {e}", exc_info=True)
-
-    # === 完结判断 ===
-
-    @classmethod
-    def _judge_finished(cls, is_finish_list, index_show, new_ep_desc,
-                        total, main_count, category_key):
-        """
-        多信号完结判断。
-        返回: 1=已完结, -1=连载中, 0=未知
-        """
-        # 信号1：列表页 is_finish 字段（最可靠）
-        if is_finish_list == 1:
-            return 1
-
-        # 信号2：index_show / new_ep_desc 含"全"
-        combined = f'{index_show} {new_ep_desc}'
-        if '全' in combined and '更新' not in combined:
-            return 1
-
-        # 信号3：含"更新至" → 连载中
-        if '更新至' in combined or '更新到' in combined:
-            return -1
-
-        # 信号4：电影（1集=完结）
-        if category_key == 'movie':
-            if main_count >= 1:
-                return 1
-            return 0
-
-        # 信号5：总集数 > 正片数 → 连载中
-        if total > 0 and main_count < total:
-            return -1
-
-        # 信号6：总集数 == 正片数 → 已完结
-        if total > 0 and main_count >= total:
-            return 1
-
-        return 0
 
     # === 工具 ===
 

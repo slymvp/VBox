@@ -22,12 +22,14 @@ class IQiyiAPISpider(BaseSpider):
 
     def __init__(self, channel_config):
         super().__init__('爱奇艺', channel_config)
-        # 反爬：动态构建完整请求头
+        # 反爬：动态构建完整请求头（带代理轮换）
         from core.anti_crawl import build_headers
-        self.headers = build_headers(
+        self.session = self.create_session()
+        self.session.headers.update(build_headers(
             referer='https://www.iqiyi.com/',
             ua=self.get_user_agent(),
-        )
+        ))
+        self.headers = self.session.headers
 
         # 优先使用 main.py 注入的 category_key（最可靠），
         # 其次使用数据库 channel_key 字段，最后默认 tv
@@ -82,7 +84,7 @@ class IQiyiAPISpider(BaseSpider):
             }
 
             logger.info(f"请求API: 第{page}页")
-            response = requests.get(url, headers=self.headers, params=params, timeout=15)
+            response = self.session.get(url, params=params, timeout=15)
             response.encoding = 'utf-8'
 
             if response.status_code == 200:
@@ -124,11 +126,23 @@ class IQiyiAPISpider(BaseSpider):
 
                 # 构建URL - 优先使用API返回的playUrl
                 play_url = item.get('playUrl', '')
+
+                # 从 playUrl 提取稳定的字符串 album ID（如 /a_131ig5wtqg5.html）
+                # 避免 cid 在 extract_items 和 fetch_detail 之间不一致
+                album_str_id_from_url = ''
+                if play_url:
+                    m = re.search(r'/a_([^.]+)\.html', play_url)
+                    if m:
+                        album_str_id_from_url = m.group(1)
+
                 if not play_url:
                     if vid:
                         play_url = f'https://www.iqiyi.com/v_{vid}.html'
                     else:
                         play_url = f'https://www.iqiyi.com/a_{album_id}.html'
+
+                # 优先用字符串 ID 作为 cid（稳定性更高）
+                stable_cid = album_str_id_from_url or album_id
 
                 # 提取其他信息
                 # year: 列表API不直接提供 year 字段，但 period 字段有完整日期（如 "2026-05-27"）
@@ -180,7 +194,7 @@ class IQiyiAPISpider(BaseSpider):
 
                 result = {
                     'platform': 'iqiyi',
-                    'cid': album_id,          # 初始使用albumId作为cid，fetch_detail中会更新为稳定的字符串ID
+                    'cid': stable_cid,        # 优先使用字符串ID，确保cid稳定
                     'title': title,
                     'url': play_url,
                     'vid': vid or album_id,  # 优先使用tvId，没有则用albumId
@@ -216,13 +230,15 @@ class IQiyiAPISpider(BaseSpider):
         """
         try:
             url = item.get('url', '')
+            # album_id 是数字ID，用于 API 调用；cid 可能已是字符串ID
             album_id = str(item.get('album_id', '') or item.get('vid', ''))
+            existing_cid = item.get('cid', '')
 
-            if not url or not album_id:
+            if not url and not album_id and not existing_cid:
                 logger.warning(f"缺少URL或albumId: {item.get('title')}")
                 return
 
-            logger.info(f"获取详情: {item.get('title')} - albumId={album_id}")
+            logger.info(f"获取详情: {item.get('title')} - albumId={album_id}, cid={existing_cid}")
 
             # 通过baseinfo API获取专辑详细信息（字符串ID + 元数据）
             album_str_id, baseinfo = self._get_album_info(album_id)
@@ -230,8 +246,8 @@ class IQiyiAPISpider(BaseSpider):
                 item['cid'] = album_str_id
                 # 更新URL为专辑页URL，确保分集链接正确
                 item['url'] = f'https://www.iqiyi.com/a_{album_str_id}.html'
-            else:
-                # 回退：使用原始albumId作为cid
+            elif not existing_cid:
+                # 回退：使用原始albumId作为cid（仅当cid为空时）
                 item['cid'] = album_id
 
             # 从baseinfo补充缺失字段
@@ -355,8 +371,21 @@ class IQiyiAPISpider(BaseSpider):
                 item['has_episodes'] = True
 
                 # 判断完结状态
-                item['is_finished'] = self._judge_finished(
-                    item, main_eps, trailer_eps, baseinfo
+                from core.finished_judge import judge
+                # 爱奇艺 baseinfo.isFinish 字段
+                api_finished = 0
+                if baseinfo:
+                    is_finish_val = baseinfo.get('isFinish', None)
+                    if is_finish_val == 1:
+                        api_finished = 1
+                    elif is_finish_val == 0:
+                        api_finished = -1
+                item['is_finished'] = judge(
+                    api_finished=api_finished,
+                    total_episodes=item.get('total_episodes', 0),
+                    main_count=len(main_eps),
+                    trailer_count=len(trailer_eps),
+                    category_key=self.category_key,
                 )
                 logger.info(f"提取到 {len(episodes)} 集（正片{len(main_eps)}集，预告{len(trailer_eps)}集，花絮{len(bts_eps)}集），总{item['total_episodes']}集，更新至{item['updated_episodes']}集，VIP={item['is_vip']}，完结={item['is_finished']}")
             else:
@@ -427,7 +456,7 @@ class IQiyiAPISpider(BaseSpider):
         """
         try:
             baseinfo_url = f'https://pcw-api.iqiyi.com/album/album/baseinfo/{album_id}'
-            resp = requests.get(baseinfo_url, headers=self.headers, timeout=15)
+            resp = self.session.get(baseinfo_url, timeout=15)
             if resp.status_code != 200:
                 return None, None
             data = resp.json()
@@ -449,45 +478,6 @@ class IQiyiAPISpider(BaseSpider):
         except Exception as e:
             logger.debug(f"baseinfo API请求失败: {e}")
             return None, None
-
-    def _judge_finished(self, item, main_eps, trailer_eps, baseinfo):
-        """
-        判断爱奇艺剧集的完结状态。
-        - isFinish==1 且 updated==total → 完结
-        - isFinish==0 且 updated<total → 连载中
-        - 其他以 total_episodes vs updated_episodes 为准
-        返回值：1=已完结，-1=连载中，0=未知
-        """
-        main_count = len(main_eps)
-        total_episodes = item.get('total_episodes', 0)
-
-        # 电影特殊处理：有1集正片就算完结
-        if self.category_key == 'movie':
-            return 1 if main_count >= 1 else 0
-
-        # 获取 baseinfo.isFinish
-        is_finish = baseinfo.get('isFinish', None) if baseinfo else None
-
-        # === isFinish 与 total_episodes 交叉验证 ===
-        if total_episodes > 0:
-            if is_finish == 1 and main_count == total_episodes:
-                return 1   # API 确认完结 + 集数一致 → 完结
-            elif is_finish == 0 and main_count < total_episodes:
-                return -1  # API 确认未完结 + 集数未达标 → 连载中
-
-        # === 核心判断：total_episodes vs updated_episodes ===
-        if total_episodes > 0:
-            if main_count >= total_episodes:
-                return 1   # updated >= total → 完结
-            else:
-                return -1  # updated < total → 连载中
-
-        # === 兜底 ===
-        # 有正片但 total_episodes 未知 → 连载中
-        if main_count > 0:
-            return -1
-
-        return 0  # 未知
 
     @staticmethod
     def _extract_area(baseinfo):
@@ -645,10 +635,9 @@ class IQiyiAPISpider(BaseSpider):
         if not title:
             return result
         try:
-            resp = requests.get(
+            resp = self.session.get(
                 'https://search.video.iqiyi.com/o',
                 params={'if': 'html5', 'key': title, 'pageNum': 1, 'pageSize': 5},
-                headers=self.headers,
                 timeout=10,
             )
             data = resp.json()
@@ -780,7 +769,7 @@ class IQiyiAPISpider(BaseSpider):
         try:
             url = (f'https://mesh.if.iqiyi.com/player/pcw/video/playervideoinfo'
                    f'?id={qipu_id}&locale=zh_cn')
-            resp = requests.get(url, headers=self.headers, timeout=10)
+            resp = self.session.get(url, timeout=10)
             if resp.status_code != 200:
                 logger.debug(f"playervideoinfo HTTP {resp.status_code}: qipuId={qipu_id}")
                 return None
@@ -845,7 +834,7 @@ class IQiyiAPISpider(BaseSpider):
     def _url_exists(self, url):
         """HEAD 请求检查 URL 是否存在（HTTP 200）"""
         try:
-            resp = requests.head(url, headers=self.headers, timeout=5, allow_redirects=True)
+            resp = self.session.head(url, timeout=5, allow_redirects=True)
             return resp.status_code == 200
         except Exception:
             return False

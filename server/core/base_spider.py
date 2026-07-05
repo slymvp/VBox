@@ -6,7 +6,7 @@ import os
 import random
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from core.config import Config
-from core.anti_crawl import build_headers, random_delay
+from core.anti_crawl import build_headers, random_delay, ProxySession, rate_limited
 
 
 class BaseSpider(ABC):
@@ -28,6 +28,10 @@ class BaseSpider(ABC):
         # 使用 UA 池随机选择
         from core.anti_crawl import get_random_ua
         return get_random_ua()
+
+    def create_session(self):
+        """创建带代理轮换的 requests Session，所有子类应使用此方法"""
+        return ProxySession()
     
     def get_keywords(self, keyword_type):
         """获取指定类型的关键词列表（通过 spiders.keywords.load_keywords 统一加载）"""
@@ -74,15 +78,14 @@ class BaseSpider(ABC):
             return set()
 
     def _fetch_list_page_safe(self, page):
-        """线程安全的列表页获取，带随机限流"""
+        """线程安全的列表页获取，带令牌桶限流"""
         try:
+            rate_limited(self.platform_name, qps=3.0)
             data = self.fetch_list_page(page)
             return page, data
         except Exception as e:
             print(f'第 {page} 页获取异常: {e}')
             return page, None
-        finally:
-            random_delay(0.5, 2.0)  # 随机抖动替代固定 0.3s
 
     def crawl(self, max_items=10):
         print(f'[{self.platform_name}] 开始爬取...\n')
@@ -195,12 +198,11 @@ class BaseSpider(ABC):
         return 1
 
     def _fetch_detail_safe(self, item):
-        """线程安全的详情获取，带随机限流"""
+        """线程安全的详情获取，带令牌桶限流"""
         try:
+            rate_limited(self.platform_name, qps=3.0)
             self.fetch_detail(item)
         except Exception as e:
             print(f'详情获取异常: {self._get_item_title(item)}, 错误: {e}')
             raise
-        finally:
-            random_delay(0.5, 2.0)  # 随机抖动替代固定 0.3s
 

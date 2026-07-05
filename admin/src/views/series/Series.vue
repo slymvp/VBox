@@ -119,7 +119,7 @@
                 <el-option label="腾讯视频" value="tencent" />
                 <el-option label="优酷" value="youku" />
                 <el-option label="芒果TV" value="mgtv" />
-                <el-option label="搜狐" value="sohu" />
+
                 <el-option label="B站" value="bilibili" />
               </el-select>
             </el-form-item>
@@ -295,7 +295,7 @@ const platformMap: Record<string, string> = {
   tencent: '腾讯视频',
   youku: '优酷',
   mgtv: '芒果TV',
-  sohu: '搜狐',
+
   bilibili: 'B站'
 }
 

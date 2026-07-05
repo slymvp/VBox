@@ -68,12 +68,14 @@ class YoukuBaseSpider(BaseSpider):
         self._list_type = str(channel_config.get('sort', '') or '')
         self._page_fetched = False  # 频道页SSR只请求一次
 
-        # 反爬：动态构建完整请求头
+        # 反爬：动态构建完整请求头（带代理轮换）
         from core.anti_crawl import build_headers
+        self.session = self.create_session()
         self.HEADERS = build_headers(
             referer='https://www.youku.com/',
             ua=self.get_user_agent(),
         )
+        self.session.headers.update(self.HEADERS)
 
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('youku', 'trailer', self._TRAILER_FALLBACK)
@@ -85,13 +87,13 @@ class YoukuBaseSpider(BaseSpider):
         timeout = timeout or self.timeout
 
         def _do_request():
-            resp = requests.get(url, params=params, headers=self.HEADERS, timeout=timeout)
+            resp = self.session.get(url, params=params, timeout=timeout)
             resp.raise_for_status()
             return resp
 
         return RetryHelper.with_retry(
             _do_request, max_retries=3, base_delay=1, max_delay=8,
-            exceptions=(requests.RequestException,)
+            exceptions=(Exception,)
         )
 
     def _request_page_with_retry(self, url, timeout=None):
@@ -99,13 +101,13 @@ class YoukuBaseSpider(BaseSpider):
         timeout = timeout or self.timeout
 
         def _do_request():
-            resp = requests.get(url, headers=self.HEADERS, timeout=timeout)
+            resp = self.session.get(url, timeout=timeout)
             resp.raise_for_status()
             return resp.text
 
         return RetryHelper.with_retry(
             _do_request, max_retries=3, base_delay=1, max_delay=8,
-            exceptions=(requests.RequestException,)
+            exceptions=(Exception,)
         )
 
     # ==================== 列表页 ====================
@@ -326,10 +328,85 @@ class YoukuBaseSpider(BaseSpider):
             return 0, 0
 
         total_episodes = 0
+
+        # 先提取总集数
+        # 模式1: "XX[集期话]全" / "全XX[集期话]"
+        m = re.search(r'(\d+)\s*[集期话]\s*全', lb_texts)
+        if not m:
+            m = re.search(r'全\s*(\d+)\s*[集期话]', lb_texts)
+        if m:
+            total_episodes = int(m.group(1))
+
+        # 模式2: "更新至XX[集期话]"
+        if not total_episodes:
+            m = re.search(r'更新至\s*(\d+)\s*[集期话]', lb_texts)
+            if m:
+                total_episodes = int(m.group(1))
+
+        # 模式3: 限免 → 连载中
+        if '限免' in lb_texts:
+            return total_episodes, -1
+
+        # 模式4: 单集 "1[集期话]" / "1[集期话]全"
+        if not total_episodes:
+            m = re.search(r'(\d+)\s*[集期话]', lb_texts)
+            if m:
+                total_episodes = int(m.group(1))
+
+        # 统一完结判断
+        from core.finished_judge import judge
+        is_finished = judge(
+            text=lb_texts,
+            total_episodes=total_episodes,
+            main_count=total_episodes,  # 列表页只有总集数，详情页会更新
+            category_key=self.category_key,
+        )
+        return total_episodes, is_finished
+
+    # 以下方法保留用于详情页的额外判断
+    def _parse_lb_texts_detail(self, lb_texts, main_count):
+        """详情页用的 lbTexts 解析，结合实际正片数判断"""
+        if not lb_texts:
+            return 0, 0
+
+        total_episodes = 0
+
+        m = re.search(r'(\d+)\s*[集期话]\s*全', lb_texts)
+        if not m:
+            m = re.search(r'全\s*(\d+)\s*[集期话]', lb_texts)
+        if m:
+            total_episodes = int(m.group(1))
+
+        if not total_episodes:
+            m = re.search(r'更新至\s*(\d+)\s*[集期话]', lb_texts)
+            if m:
+                total_episodes = int(m.group(1))
+
+        if '限免' in lb_texts:
+            return total_episodes, -1
+
+        if not total_episodes:
+            m = re.search(r'(\d+)\s*[集期话]', lb_texts)
+            if m:
+                total_episodes = int(m.group(1))
+
+        from core.finished_judge import judge
+        is_finished = judge(
+            text=lb_texts,
+            total_episodes=total_episodes,
+            main_count=main_count,
+            category_key=self.category_key,
+        )
+        return total_episodes, is_finished
+
+    def _parse_lb_texts_legacy(self, lb_texts):
+        """保留旧逻辑用于兼容"""
+        if not lb_texts:
+            return 0, 0
+
+        total_episodes = 0
         is_finished = 0
 
-        # 构建匹配所有单位的正则：[集期话]
-        # 模式1: "XX[集期话]全" / "全XX[集期话]" → 已完结
         m = re.search(r'(\d+)\s*[集期话]\s*全', lb_texts)
         if not m:
             m = re.search(r'全\s*(\d+)\s*[集期话]', lb_texts)
@@ -338,19 +415,16 @@ class YoukuBaseSpider(BaseSpider):
             is_finished = 1
             return total_episodes, is_finished
 
-        # 模式2: "更新至XX[集期话]" → 连载中
         m = re.search(r'更新至\s*(\d+)\s*[集期话]', lb_texts)
         if m:
             total_episodes = int(m.group(1))
             is_finished = -1
             return total_episodes, is_finished
 
-        # 模式3: "限免XX-XX[集期话]" / "限免XX[集期话]" → 连载中
         if '限免' in lb_texts:
             is_finished = -1
             return total_episodes, is_finished
 
-        # 模式4: 单集 "1[集期话]" / "1[集期话]全"
         m = re.search(r'(\d+)\s*[集期话]', lb_texts)
         if m:
             count = int(m.group(1))

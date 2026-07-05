@@ -56,13 +56,15 @@ class IQiyiEpisodeExtractor:
 
     def __init__(self):
         self.timeout = 8
-        # 反爬：动态构建完整请求头
-        from core.anti_crawl import build_headers, get_random_ua
+        # 反爬：动态构建完整请求头（带代理轮换）
+        from core.anti_crawl import build_headers, get_random_ua, ProxySession
         self.headers = build_headers(
             referer='https://www.iqiyi.com/',
             origin='https://www.iqiyi.com',
             ua=get_random_ua(),
         )
+        self.session = ProxySession()
+        self.session.headers.update(self.headers)
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('iqiyi', 'trailer', _TRAILER_KEYWORDS_DEFAULT)
         self._bts_keywords = load_keywords('iqiyi', 'bts', _BTS_KEYWORDS_DEFAULT)
@@ -133,7 +135,7 @@ class IQiyiEpisodeExtractor:
 
             album_page_url = f'https://www.iqiyi.com/a_{album_str_id}.html'
             logger.info(f"访问专辑页: {album_page_url}")
-            resp = requests.get(album_page_url, headers=self.headers, timeout=self.timeout)
+            resp = self.session.get(album_page_url, timeout=self.timeout)
 
             if resp.status_code != 200:
                 logger.warning(f"专辑页返回非200状态码: {resp.status_code}")
@@ -151,7 +153,7 @@ class IQiyiEpisodeExtractor:
         """从详情页HTML中提取albumId，再尝试专辑页或API"""
         try:
             logger.info(f"从详情页提取albumId: {page_url}")
-            resp = requests.get(page_url, headers=self.headers, timeout=self.timeout)
+            resp = self.session.get(page_url, timeout=self.timeout)
             if resp.status_code != 200:
                 return [], 0
 
@@ -229,7 +231,7 @@ class IQiyiEpisodeExtractor:
             }
 
             logger.info(f"请求avlistinfo API: albumId={album_id}")
-            resp = requests.get(api_url, headers=self.headers, params=params, timeout=self.timeout)
+            resp = self.session.get(api_url, params=params, timeout=self.timeout)
 
             if resp.status_code != 200:
                 logger.warning(f"avlistinfo API返回非200状态码: {resp.status_code}")
@@ -496,7 +498,7 @@ class IQiyiEpisodeExtractor:
         try:
             baseinfo_url = f'https://pcw-api.iqiyi.com/album/album/baseinfo/{album_id}'
             logger.info(f"请求baseinfo API: albumId={album_id}")
-            resp = requests.get(baseinfo_url, headers=self.headers, timeout=self.timeout)
+            resp = self.session.get(baseinfo_url, timeout=self.timeout)
 
             if resp.status_code != 200:
                 return None, 0
@@ -627,7 +629,7 @@ class IQiyiEpisodeExtractor:
                     'vid': vid,
                     'play_title': play_title,
                     'union_title': play_title,
-                    'episode_type': episode_type,  # 0=正片，1=预告，2=花絮
+                    'episode_type': episode_type, # 0=正片，1=预告，2=花絮
                     'duration': duration,
                     'publish_date': publish_date,
                     'play_url': play_url,
@@ -654,7 +656,7 @@ class IQiyiEpisodeExtractor:
                     'pageNum': page,
                 }
 
-                resp = requests.get(api_url, headers=self.headers, params=params, timeout=self.timeout)
+                resp = self.session.get(api_url, params=params, timeout=self.timeout)
                 if resp.status_code != 200:
                     break
 
@@ -1283,11 +1285,11 @@ class IQiyiEpisodeExtractor:
             'vid': vid,
             'play_title': play_title,
             'union_title': play_title,
-            'episode_type': episode_type,  # 0=正片，1=预告，2=花絮
+            'episode_type': episode_type, # 0=正片，1=预告，2=花絮
             'duration': '',
             'publish_date': '',
             'play_url': full_url,
-            'is_vip': 0,  # HTML解析无法获取VIP信息，默认免费，由fetch_detail层统一校正
+            'is_vip': 0, # HTML解析无法获取VIP信息，默认免费，由fetch_detail层统一校正
         }
         return episode
 
@@ -1367,11 +1369,11 @@ class IQiyiEpisodeExtractor:
                 'vid': vid,
                 'play_title': title,
                 'union_title': title,
-                'episode_type': episode_type,  # 0=正片，1=预告，2=花絮
+                'episode_type': episode_type, # 0=正片，1=预告，2=花絮
                 'duration': '',
                 'publish_date': '',
                 'play_url': full_url,
-                'is_vip': 0,  # 正则解析无法获取VIP信息，默认免费，由fetch_detail层统一校正
+                'is_vip': 0, # 正则解析无法获取VIP信息，默认免费，由fetch_detail层统一校正
             })
 
         if episodes:
@@ -1392,11 +1394,11 @@ class IQiyiEpisodeExtractor:
         - 综艺日期期号：20250610期, -08-28期（回退到 default_num）
         """
         patterns = [
-            r'第(\d+)\s*期\s*[上下来加]?',   # 第1期上, 第1期下, 第1期加更 → 取期号
-            r'第(\d+)\s*[集话回弹]',          # 第1集, 第01集, 第2话, 第4回, 第5弹
-            r'(\d+)\s*集',                    # 1集, 01集
-            r'[Ee][Pp]\.?\s*(\d+)',           # EP1, EP01, ep.1
-            r'[Ee](\d+)',                     # E1 (需在EP之后匹配，避免误匹配)
+            r'第(\d+)\s*期\s*[上下来加]?',  # 第1期上, 第1期下, 第1期加更 → 取期号
+            r'第(\d+)\s*[集话回弹]',         # 第1集, 第01集, 第2话, 第4回, 第5弹
+            r'(\d+)\s*集',                   # 1集, 01集
+            r'[Ee][Pp]\.?\s*(\d+)',          # EP1, EP01, ep.1
+            r'[Ee](\d+)',                    # E1 (需在EP之后匹配，避免误匹配)
         ]
         for pattern in patterns:
             match = re.search(pattern, title)

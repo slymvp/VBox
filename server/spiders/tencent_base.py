@@ -76,8 +76,9 @@ class TencentBaseSpider(BaseSpider):
         else:
             self._list_type = ''
             self._filter_params = ''
-        # 动态构建完整请求头（反爬：每次初始化随机 UA + 完整浏览器头）
+        # 动态构建完整请求头（反爬：每次初始化随机 UA + 完整浏览器头 + 代理轮换）
         from core.anti_crawl import build_headers
+        self.session = self.create_session()
         self.HEADERS = build_headers(
             referer='https://v.qq.com/',
             origin='https://v.qq.com',
@@ -86,6 +87,7 @@ class TencentBaseSpider(BaseSpider):
             ua=self.get_user_agent(),
             extra={'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-site'},
         )
+        self.session.headers.update(self.HEADERS)
 
         # 从 AdminPlatform 配置加载关键词（fallback 到硬编码）
         self._trailer_keywords = load_keywords('tencent', 'trailer', self._TRAILER_FALLBACK)
@@ -99,7 +101,7 @@ class TencentBaseSpider(BaseSpider):
         timeout = timeout or self.timeout
 
         def _do_request():
-            resp = requests.post(url, json=payload, headers=self.HEADERS, timeout=timeout)
+            resp = self.session.post(url, json=payload, timeout=timeout)
             data = resp.json()
             if not isinstance(data, dict):
                 raise ValueError(f"API返回数据结构不正确: {type(data)}")
@@ -107,7 +109,7 @@ class TencentBaseSpider(BaseSpider):
 
         return RetryHelper.with_retry(
             _do_request, max_retries=3, base_delay=1, max_delay=8,
-            exceptions=(requests.RequestException, ValueError)
+            exceptions=(Exception,)
         )
 
     def crawl(self, max_items=10):
@@ -146,7 +148,8 @@ class TencentBaseSpider(BaseSpider):
                 break
 
             page += 1
-            time.sleep(0.3)  # 优化：从0.5s降到0.3s
+            from core.anti_crawl import rate_limited
+            rate_limited(self.platform_name, qps=3.0)
 
         # 截断到max_items
         if max_items is not None and len(all_items) > max_items:
@@ -488,13 +491,13 @@ class TencentBaseSpider(BaseSpider):
                 item['is_vip'] = series_is_vip
 
                 # 完结状态判断
-                item['is_finished'] = self._judge_finished(
-                    episode_sub_title=episode_sub_title,
-                    episode_all=real_total,
-                    main_eps=main_eps,
-                    trailer_eps=trailer_eps,
-                    updated_episodes=api_updated or main_count,
-                    year=item.get('year', ''),
+                from core.finished_judge import judge
+                item['is_finished'] = judge(
+                    text=episode_sub_title,
+                    total_episodes=real_total or item.get('total_episodes', 0),
+                    main_count=main_count,
+                    trailer_count=len(trailer_eps),
+                    category_key=self.category_key,
                 )
 
                 logger.info(f"提取到 {len(episodes)} 集（正片{main_count}集，预告{len(trailer_eps)}集，花絮{len(bts_eps)}集），API: 总{api_total}集/更新{api_updated}集，全局总{real_total}集，最终: 总{item['total_episodes']}集，更新至{item['updated_episodes']}集，VIP={item['is_vip']}，完结={item['is_finished']}")
@@ -629,101 +632,6 @@ class TencentBaseSpider(BaseSpider):
                     all_episodes.extend(self._extract_episodes_from_card(card2, cid))
 
         return all_episodes, series_detail
-
-    def _judge_finished(self, episode_sub_title, episode_all, main_eps, trailer_eps,
-                        updated_episodes, year):
-        """
-        综合多信号判断完结状态。
-        返回值：1=已完结，-1=未完结/连载中，0=未知
-
-        信号优先级：
-        1. 标题关键词+集数综合判断（连载关键词需集数确认，完结关键词需集数确认）
-        2. 集数比较：main_count vs episode_all
-        3. 标题提取总集数
-        4. 其他兜底
-        """
-        main_count = len(main_eps)
-        trailer_count = len(trailer_eps)
-        
-        logger.debug(f"[_judge_finished] episode_sub_title={episode_sub_title}, episode_all={episode_all}, updated_episodes={updated_episodes}, main_count={main_count}")
-
-        st = (episode_sub_title or '').strip()
-
-        # 优先级1：标题关键词 + 集数综合判断
-        if st:
-            has_ongoing = any(kw in st for kw in self._ongoing_keywords)
-            has_finished = any(kw in st for kw in self._finished_keywords)
-            logger.debug(f"[_judge_finished] 标题关键词检查 - has_ongoing={has_ongoing}, has_finished={has_finished}")
-            # 连载关键词：需结合集数确认
-            if has_ongoing and episode_all > 0 and main_count < episode_all:
-                logger.debug("[_judge_finished] 判断为未完结（标题含连载关键词且正片数<总集数）")
-                return -1
-            # 完结关键词：需结合集数确认
-            if has_finished and episode_all > 0 and main_count >= episode_all:
-                logger.debug("[_judge_finished] 判断为完结（标题含完结关键词且正片数>=总集数）")
-                return 1
-
-        # 优先级2：集数比较（用main_count替代updated_episodes，后者含预告/花絮不准）
-        if episode_all > 0 and main_count > 0:
-            logger.debug(f"[_judge_finished] 集数比较 - episode_all={episode_all}, main_count={main_count}")
-            if main_count < episode_all:
-                logger.debug("[_judge_finished] 判断为未完结（正片数<总集数）")
-                return -1
-            if main_count >= episode_all:
-                logger.debug("[_judge_finished] 判断为完结（正片数>=总集数）")
-                return 1
-
-        # 优先级3：标题关键词判断
-        title_total = self._extract_total_from_title(st)
-        if title_total > 0:
-            # 如果标题中提取的总集数大于正片数，则未完结
-            if main_count < title_total:
-                return -1
-            # 如果标题中提取的总集数等于正片数，则完结
-            if main_count == title_total:
-                return 1
-
-        # 优先级4：其他
-        # 正片数 < 总集数 → 未完结
-        if episode_all > 0 and main_count < episode_all:
-            return -1
-
-        # 正片最后一集号 + 1 == 预告第一集号 → 未完结
-        main_nums = sorted([
-            int(str(ep.get('episode_num', '0'))) for ep in main_eps
-            if str(ep.get('episode_num', '')).isdigit()
-        ])
-        trailer_nums = sorted([
-            int(str(ep.get('episode_num', '0'))) for ep in trailer_eps
-            if str(ep.get('episode_num', '')).isdigit()
-        ])
-        max_main = main_nums[-1] if main_nums else 0
-        min_trailer = trailer_nums[0] if trailer_nums else 0
-        if max_main > 0 and min_trailer > 0 and max_main + 1 == min_trailer:
-            return -1
-
-        # 综合兜底
-        main_consecutive = (
-            main_nums
-            and main_nums[0] == 1
-            and len(main_nums) == main_nums[-1]  # 1~N 连续无跳号
-        )
-        has_trailer = trailer_count > 0
-
-        # episode_all 未知时
-        if episode_all == 0:
-            if not main_consecutive and has_trailer:
-                return -1
-            if main_consecutive and not has_trailer:
-                y = int(year) if year and str(year).isdigit() else 0
-                # 只有在剧集年份超过3年且没有预告的情况下才判断为完结
-                # 否则默认为未知，避免误判
-                if y > 0 and y <= 2023:  # 上映超3年
-                    return 1
-                # 如果年份未知或较近，且没有预告，则默认为未知
-                return 0
-
-        return 0  # 未知
 
     def _get_episode_type(self, title, is_trailer='0'):
         """

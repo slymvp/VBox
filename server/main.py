@@ -34,6 +34,8 @@ def save_items_to_db(items, platform_key, category_key, sort=None):
     if not items:
         return 0
 
+    from core.normalize import normalize_actors, normalize_area, normalize_tags, normalize_score
+
     # 组装批量数据
     batch_data = []
     for item in items:
@@ -43,15 +45,15 @@ def save_items_to_db(items, platform_key, category_key, sort=None):
             'title': item.get('title', ''),
             'url': item.get('url', '') or item.get('play_url', ''),
             'first_vid': item.get('first_vid', '') or item.get('vid', ''),
-            'area': item.get('area', ''),
+            'area': normalize_area(item.get('area', '')),
             'year': item.get('year', ''),
-            'score': float(item.get('score', 0)) if item.get('score') else None,
-            'tags': item.get('tags', []),
+            'score': normalize_score(item.get('score')),
+            'tags': normalize_tags(item.get('tags', [])),
             'thumbnail': item.get('thumbnail', ''),
             'cover_url': item.get('cover_url', ''),
             'description': item.get('description', ''),
-            'actors': item.get('actors', ''),
-            'director': item.get('director', ''),
+            'actors': normalize_actors(item.get('actors', '')),
+            'director': normalize_actors(item.get('director', '')),
             'total_episodes': item.get('total_episodes', 0),
             'updated_episodes': item.get('updated_episodes', 0),
             'is_vip': item.get('is_vip', 0),
