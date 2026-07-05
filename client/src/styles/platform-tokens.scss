@@ -1,0 +1,170 @@
+/**
+ * 平台 CSS 变量系统
+ * 通过 :root[data-platform="xxx"] 切换平台专属样式
+ * 替代原有的 body.tv-mode / .tv-layout 覆盖样式
+ */
+
+/* =============== 通用基础变量（所有平台共享） =============== */
+:root {
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Header 高度 */
+  --header-h: 48px;
+  --channel-bar-h: 32px;
+
+  /* 字体大小 */
+  --font-base: 14px;
+  --font-sm: 12px;
+  --font-lg: 16px;
+  --font-xl: 20px;
+
+  /* 卡片 */
+  --card-gap: 16px;
+  --card-radius: 8px;
+
+  /* 焦点样式（TV 用） */
+  --focus-outline: 2px solid var(--gold);
+  --focus-outline-offset: 2px;
+
+  /* Header 背景（可被平台/主题覆盖） */
+  --header-bg: var(--surface);
+}
+
+/* =============== PC 平台 =============== */
+:root[data-platform="pc"] {
+  --header-h: 56px;
+  --font-base: 14px;
+  --card-gap: 20px;
+  --card-radius: 10px;
+  /* PC 使用鼠标，保留 hover */
+  --hover-enabled: 1;
+  /* PC Header 半透明（原 body:not(.tv-mode) 逻辑） */
+  --header-bg: var(--surface);
+}
+
+/* =============== 移动端平台 =============== */
+:root[data-platform="mobile"] {
+  --header-h: 48px;
+  --channel-bar-h: 36px;
+  --font-base: 14px;
+  --card-gap: 12px;
+  --card-radius: 8px;
+  /* 移动端无鼠标 hover */
+  --hover-enabled: 0;
+  /* 移动端 Header 半透明带毛玻璃 */
+  --header-bg: rgba(255, 255, 255, 0.92);
+}
+
+/* =============== TV 平台 =============== */
+:root[data-platform="tv"] {
+  --header-h: 56px;
+  --channel-bar-h: 40px;
+  --font-base: 24px;
+  --font-sm: 18px;
+  --font-lg: 28px;
+  --font-xl: 32px;
+  --card-gap: 24px;
+  --card-radius: 10px;
+  /* TV 无鼠标 hover，仅焦点导航 */
+  --hover-enabled: 0;
+  /* TV Header 不透明 */
+  --header-bg: var(--surface);
+
+  /* TV 字体抗锯齿 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 大屏 TV 适配 */
+@media (min-width: 1920px) {
+  :root[data-platform="tv"] {
+    --font-base: 28px;
+    --card-gap: 30px;
+  }
+}
+
+@media (max-width: 1366px) {
+  :root[data-platform="tv"] {
+    --font-base: 20px;
+    --card-gap: 15px;
+  }
+}
+
+/* =============== 焦点样式（仅 TV） =============== */
+:root[data-platform="tv"] button.focusable:focus,
+:root[data-platform="tv"] a.focusable:focus,
+:root[data-platform="tv"] .focusable:focus {
+  outline: var(--focus-outline) !important;
+  outline-offset: var(--focus-outline-offset);
+}
+
+/* =============== hover 禁用（TV + 移动端） =============== */
+/* hover 效果仅在 hover-enabled=1（PC）时生效 */
+:root[data-platform="tv"] button:hover,
+:root[data-platform="tv"] a:hover,
+:root[data-platform="tv"] .card:hover,
+:root[data-platform="tv"] .list-item:hover,
+:root[data-platform="tv"] .series-card:hover,
+:root[data-platform="tv"] .focusable:hover,
+:root[data-platform="tv"] .recent-watch-item:hover,
+:root[data-platform="tv"] .filter-chip:hover,
+:root[data-platform="tv"] .sort-btn:hover,
+:root[data-platform="tv"] .sort-tab:hover,
+:root[data-platform="tv"] .type-btn:hover,
+:root[data-platform="tv"] .home-btn:hover,
+:root[data-platform="tv"] .search-item:hover,
+:root[data-platform="tv"] .channel-card:hover,
+:root[data-platform="tv"] .series-card:hover .card-poster img {
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+}
+
+:root[data-platform="mobile"] button:hover,
+:root[data-platform="mobile"] a:hover,
+:root[data-platform="mobile"] .card:hover,
+:root[data-platform="mobile"] .list-item:hover,
+:root[data-platform="mobile"] .series-card:hover,
+:root[data-platform="mobile"] .focusable:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =============== Header 背景 =============== */
+/* TV 端 Header 强制不透明 */
+:root[data-platform="tv"] header.header,
+:root[data-platform="tv"] .header {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  background-image: none !important;
+}
+
+/* PC/Mobile 端 Header 背景由组件自己控制，不强制覆盖 */
+
+/* =============== 滚动条 hover 禁用（TV） =============== */
+:root[data-platform="tv"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-light) !important;
+}
+
+/* =============== 移动端隐藏滚动条 =============== */
+:root[data-platform="mobile"] ::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+:root[data-platform="mobile"] * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
