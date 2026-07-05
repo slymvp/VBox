@@ -70,7 +70,7 @@ export const PLATFORM_MAP: Record<string, { name: string; icon: string; badge: s
   tencent: { name: 'QQ.V', icon: '🎭', badge: 'badge-tencent' },
   youku: { name: 'UKU.V', icon: '📺', badge: 'badge-youku' },
   mgtv: { name: 'MGO.V', icon: '🥭', badge: 'badge-mgtv' },
-  sohu: { name: 'SOHO.V', icon: '🦊', badge: 'badge-sohu' },
+
   bilibili: { name: 'BBLL.V', icon: '📱', badge: 'badge-bilibili' },
 }
 

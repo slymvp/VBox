@@ -44,8 +44,7 @@ def init_platforms():
         {"key": "iqiyi", "name": "爱奇艺", "spider": "spiders.iqiyi_spider.IqiyiSpider", "sort_order": 2},
         {"key": "youku", "name": "优酷", "spider": "spiders.youku_spider.YoukuSpider", "sort_order": 3},
         {"key": "mgtv", "name": "芒果TV", "spider": "spiders.mgtv_spider.MgtvSpider", "sort_order": 4},
-        {"key": "sohu", "name": "搜狐视频", "spider": "spiders.sohu_spider.SohuSpider", "sort_order": 5},
-        {"key": "bilibili", "name": "哔哩哔哩", "spider": "spiders.bilibili_spider.BilibiliSpider", "sort_order": 6},
+        {"key": "bilibili", "name": "哔哩哔哩", "spider": "spiders.bilibili_spider.BilibiliSpider", "sort_order": 5},
     ]
 
     with get_session() as session:

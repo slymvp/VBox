@@ -59,7 +59,7 @@ class MgtvSpider(BaseSpider):
             logger.warning(f'未知频道 "{self.category_key}"，回退为电视剧')
             self.channel_id = 2
             self.category_key = 'tv'
-        self.session = requests.Session()
+        self.session = self.create_session()
         # 反爬：动态构建完整请求头
         from core.anti_crawl import build_headers
         self.session.headers.update(build_headers(
@@ -104,47 +104,6 @@ class MgtvSpider(BaseSpider):
         if not kind_list:
             return []
         return [k for k in kind_list if k and not k.isdigit()]
-
-    @classmethod
-    def _judge_finished(cls, update_info: str, total_hits_api: int,
-                        episode_count: int, trailer_count: int,
-                        category_key: str = '') -> int:
-        """
-        多信号判断完结状态
-        :param update_info: updateInfo 字段（"全40集"/"更新至15集"/日期格式）
-        :param total_hits_api: list/master API 返回的 total
-        :param episode_count: 实际获取到的正片数
-        :param trailer_count: 预告片数量
-        :param category_key: 频道类型（variety 综艺特殊处理）
-        :return: 1=已完结, -1=连载中, 0=未知
-        """
-        info = (update_info or '').strip()
-
-        # 纯日期格式（如"2026-06-03"、"2026-06-03日"）→ 综艺还在更新中
-        if re.match(r'^\d{4}-\d{2}-\d{2}', info):
-            return -1
-
-        # 信号1：选集标题含"全" → 已完结
-        if '全' in info:
-            return 1
-
-        # 信号2：选集标题含"更新至" → 连载中
-        if '更新至' in info or '更新到' in info:
-            return -1
-
-        # 信号3：有预告 → 连载中
-        if trailer_count > 0:
-            return -1
-
-        # 信号4：无预告、有正片
-        if episode_count > 0 and trailer_count == 0:
-            # 电影/短剧（总集数较小）→ 已完结
-            if total_hits_api > 0 and episode_count >= total_hits_api:
-                return 1
-            # 综艺/其他 → 无明确信号，返回未知
-            return 0
-
-        return 0
 
     # ---------- 列表页 ----------
 
@@ -374,10 +333,11 @@ class MgtvSpider(BaseSpider):
             item['first_vid'] = item['vid']
 
         # 完结状态判断
-        item['is_finished'] = self._judge_finished(
-            update_info=item.get('update_info', ''),
-            total_hits_api=ep_total,
-            episode_count=len(main_eps),
+        from core.finished_judge import judge
+        item['is_finished'] = judge(
+            text=item.get('update_info', ''),
+            total_episodes=item.get('total_episodes', 0),
+            main_count=len(main_eps),
             trailer_count=len(trailer_eps),
             category_key=self.category_key,
         )

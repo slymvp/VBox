@@ -204,7 +204,7 @@ def health_check():
 @app.get("/api/series")
 def list_series(
     category: Optional[str] = Query(None, description="频道过滤 (tv, movie, variety, cartoon, child)"),
-    platform: Optional[str] = Query(None, description="平台过滤 (iqiyi, tencent, youku, mgtv, sohu, bilibili)"),
+    platform: Optional[str] = Query(None, description="平台过滤 (iqiyi, tencent, youku, mgtv, bilibili)"),
     year: Optional[str] = Query(None, description="年份过滤"),
     area: Optional[str] = Query(None, description="地区过滤"),
     tag: Optional[str] = Query(None, description="标签过滤"),
@@ -431,7 +431,7 @@ def list_categories():
 def get_parse_sources(platform: Optional[str] = None):
     """
     获取视频解析源配置（从数据库读取）
-    platform: 可选，平台key，如 iqiyi, tencent, youku, mgtv, sohu, bilibili
+    platform: 可选，平台key，如 iqiyi, tencent, youku, mgtv, bilibili
     """
     try:
         platform_id = None

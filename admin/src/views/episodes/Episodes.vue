@@ -236,7 +236,7 @@ const platformMap: Record<string, string> = {
   tencent: '腾讯视频',
   youku: '优酷',
   mgtv: '芒果TV',
-  sohu: '搜狐',
+
   bilibili: 'B站'
 }
 

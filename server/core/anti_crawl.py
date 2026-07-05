@@ -17,6 +17,7 @@ import os
 import json
 import time
 import logging
+import threading
 
 logger = logging.getLogger('vbox.anti_crawl')
 
@@ -180,6 +181,60 @@ def random_delay(min_sec: float = 0.5, max_sec: float = 2.0):
     return delay
 
 
+class RateLimiter:
+    """
+    令牌桶限速器，按平台隔离。
+    用法:
+        limiter = RateLimiter(qps=5)   # 每秒最多5个请求
+        limiter.acquire()               # 阻塞等待令牌
+    """
+    _instances: dict = {}
+    _lock = threading.Lock() if 'threading' in dir() else None
+
+    def __init__(self, qps: float = 5.0, burst: int = 1):
+        self.qps = qps
+        self.burst = burst
+        self._tokens = float(burst)
+        self._last_refill = time.monotonic()
+        self._lock = threading.Lock()
+
+    @classmethod
+    def get(cls, platform: str, qps: float = 5.0) -> 'RateLimiter':
+        """获取平台级限速器单例"""
+        if cls._lock is None:
+            import threading
+            cls._lock = threading.Lock()
+        with cls._lock:
+            if platform not in cls._instances:
+                cls._instances[platform] = cls(qps=qps)
+            return cls._instances[platform]
+
+    def acquire(self):
+        """获取一个令牌，必要时阻塞等待"""
+        with self._lock:
+            now = time.monotonic()
+            elapsed = now - self._last_refill
+            self._tokens = min(self.burst, self._tokens + elapsed * self.qps)
+            self._last_refill = now
+
+            if self._tokens >= 1.0:
+                self._tokens -= 1.0
+                return  # 立即放行
+
+            # 需要等待
+            wait_time = (1.0 - self._tokens) / self.qps
+
+        time.sleep(wait_time)
+        with self._lock:
+            self._tokens = max(0, self._tokens - 1.0)
+            self._last_refill = time.monotonic()
+
+
+def rate_limited(platform: str, qps: float = 5.0):
+    """获取平台限速令牌（阻塞）"""
+    RateLimiter.get(platform, qps).acquire()
+
+
 # ============================================================
 # 代理 IP 池 — 从环境变量或配置文件加载，轮换使用
 # ============================================================
@@ -262,6 +317,60 @@ def is_proxy_enabled() -> bool:
 
 # 启动时加载代理池
 _load_proxy_pool()
+
+
+# ============================================================
+# 带代理轮换的 requests Session 封装
+# ============================================================
+
+class ProxySession:
+    """
+    带自动代理轮换的 requests.Session 封装。
+    代理池为空时自动退化为直连，无需调用方关心。
+
+    用法:
+        session = ProxySession()
+        resp = session.get(url, timeout=10)
+    """
+
+    def __init__(self, max_failures=5):
+        import requests as _req
+        self._session = _req.Session()
+        self._max_failures = max_failures
+
+    @property
+    def headers(self):
+        return self._session.headers
+
+    @headers.setter
+    def headers(self, value):
+        self._session.headers = value
+
+    def _do_request(self, method, url, **kwargs):
+        """带代理轮换 + 失败自动重试的请求"""
+        proxy_dict = get_proxy()
+        proxy_url = (proxy_dict.get('http') or proxy_dict.get('https') or '') if proxy_dict else ''
+        try:
+            resp = self._session.request(method, url, proxies=proxy_dict or None, **kwargs)
+            if proxy_url:
+                release_proxy(proxy_url, True)
+            return resp
+        except Exception:
+            if proxy_url:
+                release_proxy(proxy_url, False)
+            raise
+
+    def get(self, url, **kwargs):
+        return self._do_request('GET', url, **kwargs)
+
+    def post(self, url, **kwargs):
+        return self._do_request('POST', url, **kwargs)
+
+    def head(self, url, **kwargs):
+        return self._do_request('HEAD', url, **kwargs)
+
+    def request(self, method, url, **kwargs):
+        return self._do_request(method, url, **kwargs)
 
 
 # ============================================================

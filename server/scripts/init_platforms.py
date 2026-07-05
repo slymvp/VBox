@@ -74,14 +74,6 @@ def init_platforms_full():
                 "child": {"name": "少儿", "url": "https://www.mgtv.com/h/115/"},
                 "free": {"name": "免费", "url": "https://www.mgtv.com/h/112/"},
             },
-            "sohu": {
-                "tv": {"name": "电视剧", "url": "https://tv.sohu.com/dianshiju/"},
-                "movie": {"name": "电影", "url": "https://tv.sohu.com/dianying/"},
-                "variety": {"name": "综艺", "url": "https://tv.sohu.com/zongyi/"},
-                "cartoon": {"name": "动漫", "url": "https://tv.sohu.com/dongman/"},
-                "child": {"name": "少儿", "url": "https://tv.sohu.com/shaoer/"},
-                "free": {"name": "免费", "url": "https://tv.sohu.com/dianshiju/"},
-            },
             "bilibili": {
                 "tv": {"name": "电视剧", "url": "https://www.bilibili.com/guochuang/"},
                 "movie": {"name": "电影", "url": "https://www.bilibili.com/movie/"},
